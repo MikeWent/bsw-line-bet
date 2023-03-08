@@ -1,0 +1,12 @@
+services:
+  line-provider:
+    build: ./line-provider
+    container_name: line-provider
+    ports:
+      - 8080:8080
+  bet-maker:
+    build: ./bet-maker
+    container_name: bet-maker
+    ports:
+      - 9090:9090
+    
