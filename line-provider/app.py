@@ -50,8 +50,8 @@ async def get_events() -> List[Event]:
     return [e for e in events.values() if datetime.now() < e.deadline]
 
 
-@app.get("/event/{event_id}")
-async def get_event(event_id: str) -> Event | None:
+@app.get("/event/{event_id}", responses={200: {"model": Event}, 404: {}})
+async def get_event(event_id: str):
     try:
         return events[event_id]
     except KeyError:
