@@ -4,9 +4,27 @@ services:
     container_name: line-provider
     ports:
       - 8080:8080
+    environment:
+      - BET_MAKER_CALLBACK_URL=http://bet-maker:9090/callback
+    volumes:
+      - ./common:/opt/common
+
   bet-maker:
     build: ./bet-maker
     container_name: bet-maker
     ports:
       - 9090:9090
-    
+    depends_on:
+      - bet-maker-db
+    environment:
+      - LINE_PROVIDER_EVENTS_URL=http://line-provider:8080/events
+      - DATABASE=xxx:yyy@bet-maker-db:5432/bet-maker
+    volumes:
+      - ./common:/opt/common
+
+  bet-maker-db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=bet-maker
+      - POSTGRES_USER=xxx
+      - POSTGRES_PASSWORD=yyy
