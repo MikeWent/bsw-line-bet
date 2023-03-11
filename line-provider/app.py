@@ -1,43 +1,32 @@
+import logging
 from datetime import datetime, timedelta
-from decimal import Decimal
-from enum import Enum
+from os import getenv
 from typing import List
-from uuid import uuid4
 
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+import aiohttp
 
-app = FastAPI()
+from common.dto import Event, EventStatus
 
-
-class EventStatus(Enum):
-    NEW = 1
-    FINISHED_WIN = 2
-    FINISHED_LOSE = 3
+BET_MAKER_CALLBACK_URL = getenv("BET_MAKER_CALLBACK_URL")
+app = FastAPI(title="line-provider")
 
 
-class Event(BaseModel):
-    id: str
-    coefficient: Decimal | None
-    deadline: datetime | None
-    status: EventStatus | None
-
-
-events: dict[str, Event] = {
-    "1": Event(
-        id="1",
-        coefficient=1.2,
+events: dict[int, Event] = {
+    1: Event(
+        id=3,
+        coefficient=1.20,
         deadline=datetime.now() + timedelta(minutes=1),
         status=EventStatus.NEW,
     ),
-    "2": Event(
-        id="2",
+    2: Event(
+        id=2,
         coefficient=1.15,
         deadline=datetime.now() + timedelta(seconds=30),
         status=EventStatus.NEW,
     ),
-    "3": Event(
-        id="3",
+    3: Event(
+        id=3,
         coefficient=1.67,
         deadline=datetime.now() + timedelta(seconds=10),
         status=EventStatus.NEW,
@@ -62,9 +51,24 @@ async def get_event(event_id: str):
 async def upsert_event(event: Event) -> Event:
     if event.id not in events:
         events[event.id] = event
-        return {}
+        return event
 
     for p_name, p_value in event.dict(exclude_unset=True).items():
         setattr(events[event.id], p_name, p_value)
+    logging.info("event upserted: {event}")
+
+    if event.status in (EventStatus.FINISHED_WIN, EventStatus.FINISHED_LOSE):
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.post(
+                    url=BET_MAKER_CALLBACK_URL, data=event, timeout=5
+                ) as resp:
+                    logging.info(
+                        f"callback {event.id}={event.status} sent to bet-maker, got {resp.status}."
+                    )
+        except Exception as e:
+            logging.warn(
+                f"unable to send {event.id}={event.status} callback to bet-maker: {e}"
+            )
 
     return events[event.id]
