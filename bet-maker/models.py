@@ -1,5 +1,5 @@
-from sqlalchemy import Boolean, DECIMAL, Column, Enum, ForeignKey, Integer, String
-from sqlalchemy.orm import relationship, declarative_base
+from sqlalchemy import DECIMAL, Column, Enum, String
+from sqlalchemy.orm import declarative_base
 
 from common import dto
 
