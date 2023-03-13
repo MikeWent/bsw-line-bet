@@ -1,4 +1,4 @@
-# BSW:  + line-provider
+# BSW
 
 ```
 docker build ./common -t common
