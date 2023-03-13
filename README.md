@@ -2,7 +2,7 @@
 
 ```
 docker build ./common -t common
-docker compose up --build
+docker compose up --build # twice to init postgres
 ```
 
 ## line-provider
