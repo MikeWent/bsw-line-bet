@@ -17,13 +17,14 @@ services:
     depends_on:
       - bet-maker-db
     environment:
-      - LINE_PROVIDER_EVENTS_URL=http://line-provider:8080/events
-      - DATABASE=xxx:yyy@bet-maker-db:5432/bet-maker
+      - LINE_PROVIDER_URL=http://line-provider:8080
+      - DATABASE_URL=postgresql+asyncpg://xxx:yyy@bet-maker-db:5432/bet-maker
     volumes:
       - ./common:/opt/common
 
   bet-maker-db:
     image: postgres:15
+    container_name: bet-maker-db
     environment:
       - POSTGRES_DB=bet-maker
       - POSTGRES_USER=xxx

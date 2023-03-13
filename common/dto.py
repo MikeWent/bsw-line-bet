@@ -1,9 +1,8 @@
 from datetime import datetime
 from decimal import Decimal
-
 from enum import Enum
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, condecimal
 
 
 class EventStatus(str, Enum):
@@ -13,19 +12,16 @@ class EventStatus(str, Enum):
 
 
 class Event(BaseModel):
-    id: int
-    coefficient: Decimal | None
+    id: str
+    coefficient: condecimal(decimal_places=2, gt=Decimal(0)) | None
     deadline: datetime | None
     status: EventStatus | None
 
-    @validator("coefficient")
-    def positive(cls, v: Decimal):
-        if not v > 0:
-            raise ValueError("must be positive")
-        return v
 
-    @validator("coefficient")
-    def two_digit_precise(cls, v: Decimal):
-        if v.as_tuple().exponent < -2:
-            raise ValueError("must be at most 2 decimal points precise")
-        return v
+class Bet(BaseModel):
+    id: str
+    amount: condecimal(decimal_places=2, gt=Decimal(0))
+    status: EventStatus | None
+
+    class Config:
+        orm_mode = True

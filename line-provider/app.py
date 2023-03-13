@@ -12,23 +12,23 @@ BET_MAKER_CALLBACK_URL = getenv("BET_MAKER_CALLBACK_URL")
 app = FastAPI(title="line-provider")
 
 
-events: dict[int, Event] = {
-    1: Event(
-        id=3,
+events: dict[str, Event] = {
+    "1": Event(
+        id=1,
         coefficient=1.20,
-        deadline=datetime.now() + timedelta(minutes=1),
+        deadline=datetime.now() + timedelta(minutes=10),
         status=EventStatus.NEW,
     ),
-    2: Event(
+    "2": Event(
         id=2,
         coefficient=1.15,
-        deadline=datetime.now() + timedelta(seconds=30),
+        deadline=datetime.now() + timedelta(minutes=5),
         status=EventStatus.NEW,
     ),
-    3: Event(
+    "3": Event(
         id=3,
         coefficient=1.67,
-        deadline=datetime.now() + timedelta(seconds=10),
+        deadline=datetime.now() + timedelta(minutes=1),
         status=EventStatus.NEW,
     ),
 }
@@ -61,7 +61,7 @@ async def upsert_event(event: Event) -> Event:
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.post(
-                    url=BET_MAKER_CALLBACK_URL, data=event, timeout=5
+                    url=BET_MAKER_CALLBACK_URL, json=event.dict(), timeout=5
                 ) as resp:
                     logging.info(
                         f"callback {event.id}={event.status} sent to bet-maker, got {resp.status}."
