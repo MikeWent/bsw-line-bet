@@ -8,6 +8,8 @@ services:
       - BET_MAKER_CALLBACK_URL=http://bet-maker:9090/callback
     volumes:
       - ./common:/opt/common
+    depends_on:
+      - bet-maker
 
   bet-maker:
     build: ./bet-maker
@@ -15,7 +17,8 @@ services:
     ports:
       - 9090:9090
     depends_on:
-      - bet-maker-db
+      bet-maker-db:
+        condition: service_healthy
     environment:
       - LINE_PROVIDER_URL=http://line-provider:8080
       - DATABASE_URL=postgresql+asyncpg://xxx:yyy@bet-maker-db:5432/bet-maker
@@ -29,3 +32,9 @@ services:
       - POSTGRES_DB=bet-maker
       - POSTGRES_USER=xxx
       - POSTGRES_PASSWORD=yyy
+    healthcheck:
+      test: pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB
+      interval: 1s
+      timeout: 1s
+      retries: 5
+      start_period: 1s
