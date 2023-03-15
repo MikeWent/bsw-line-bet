@@ -17,11 +17,20 @@ class Event(BaseModel):
     deadline: datetime | None
     status: EventStatus | None
 
+    class Config:
+        orm_mode = True
+
 
 class Bet(BaseModel):
-    id: str
-    amount: condecimal(decimal_places=2, gt=Decimal(0))
-    status: EventStatus | None
+    id: int
+
+    amount: Decimal
+    event: Event
 
     class Config:
         orm_mode = True
+
+
+class BetCreate(BaseModel):
+    event_id: str
+    amount: condecimal(decimal_places=2, gt=Decimal(0))
