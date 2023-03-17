@@ -59,6 +59,7 @@ async def create_bet(
     new_bet = models.Bet(**bet_create.dict(exclude_unset=True))
     db_session.add(new_bet)
     await db_session.commit()
+    await db_session.refresh(new_bet)
     return new_bet
 
 

@@ -28,4 +28,8 @@ class Bet(Base):
     amount = Column(DECIMAL)
     event_id = Column(Integer, ForeignKey("events.id"))
 
-    event = relationship("Event", lazy="joined")
+    event: Event = relationship("Event", lazy="joined")
+
+    @property
+    def status(self):
+        return self.event.status

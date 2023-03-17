@@ -24,7 +24,7 @@ class Event(BaseModel):
 class Bet(BaseModel):
     id: int
     amount: Decimal
-    event: Event
+    status: EventStatus
 
     class Config:
         orm_mode = True
