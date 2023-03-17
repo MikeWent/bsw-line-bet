@@ -1,9 +1,7 @@
 import enum
 
-from sqlalchemy import DECIMAL, Column, DateTime, Enum, ForeignKey, Integer, String
+from sqlalchemy import DECIMAL, Column, DateTime, Enum, ForeignKey, Integer
 from sqlalchemy.orm import declarative_base, relationship
-
-from common import dto
 
 Base = declarative_base()
 
@@ -11,7 +9,7 @@ Base = declarative_base()
 class Event(Base):
     __tablename__ = "events"
 
-    id = Column(String, primary_key=True)
+    id = Column(Integer, primary_key=True)
     coefficient = Column(DECIMAL)
     deadline = Column(DateTime)
 
@@ -28,6 +26,6 @@ class Bet(Base):
 
     id = Column(Integer, primary_key=True)
     amount = Column(DECIMAL)
-    event_id = Column(String, ForeignKey("events.id"))
+    event_id = Column(Integer, ForeignKey("events.id"))
 
     event = relationship("Event", lazy="joined")

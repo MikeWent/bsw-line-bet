@@ -1,6 +1,5 @@
 from datetime import datetime
 from os import getenv
-from typing import List
 
 from asyncache import cached
 from cachetools import TTLCache
@@ -25,7 +24,7 @@ async def startup():
 @cached(TTLCache(1, 5))
 async def get_events(
     db_session: AsyncSession = Depends(get_session),
-) -> List[dto.Event]:
+) -> list[dto.Event]:
     """
     Get all Events available for placing a Bet.
     """
@@ -41,7 +40,7 @@ async def get_events(
 async def create_bet(
     bet_create: dto.BetCreate,
     db_session: AsyncSession = Depends(get_session),
-):
+) -> dto.Bet:
     """
     Place a new Bet for an Event.
     """
@@ -61,7 +60,7 @@ async def create_bet(
 async def get_bet(
     bet_id: str,
     db_session: AsyncSession = Depends(get_session),
-):
+) -> dto.Bet:
     """
     Get a Bet by id.
     """
@@ -72,7 +71,9 @@ async def get_bet(
 
 
 @app.get("/bets")
-async def get_bets(db_session: AsyncSession = Depends(get_session)) -> List[dto.Bet]:
+async def get_bets(
+    db_session: AsyncSession = Depends(get_session),
+) -> list[dto.Bet]:
     """
     Get all Bets.
     """
@@ -98,6 +99,6 @@ async def callback(
 
     for p_name, p_value in event.dict(exclude_unset=True).items():
         setattr(existing_event, p_name, p_value)
-    db_session.add(existing_event)
+    db_session.merge(existing_event)
     await db_session.commit()
     return existing_event

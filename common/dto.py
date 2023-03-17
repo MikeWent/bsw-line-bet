@@ -12,7 +12,7 @@ class EventStatus(str, Enum):
 
 
 class Event(BaseModel):
-    id: str
+    id: int
     coefficient: condecimal(decimal_places=2, gt=Decimal(0)) | None
     deadline: datetime | None
     status: EventStatus | None
@@ -23,7 +23,6 @@ class Event(BaseModel):
 
 class Bet(BaseModel):
     id: int
-
     amount: Decimal
     event: Event
 
@@ -32,5 +31,5 @@ class Bet(BaseModel):
 
 
 class BetCreate(BaseModel):
-    event_id: str
+    event_id: int
     amount: condecimal(decimal_places=2, gt=Decimal(0))
