@@ -2,18 +2,19 @@ import json
 import logging
 from datetime import datetime, timedelta
 from os import getenv
-from typing import List
 
 import aiohttp
 from fastapi import FastAPI, HTTPException
 
 from common.dto import Event, EventStatus
 
-BET_MAKER_CALLBACK_URL = getenv("BET_MAKER_CALLBACK_URL")
+BET_MAKER_CALLBACK_URL = getenv(
+    "BET_MAKER_CALLBACK_URL", "http://localhost:9090/callback"
+)
 app = FastAPI(title="line-provider")
 
 
-events: dict[str, Event] = {}
+events: dict[int, Event] = {}
 
 
 @app.on_event("startup")
@@ -46,7 +47,7 @@ async def startup():
 
 
 @app.get("/events")
-async def get_events() -> List[Event]:
+async def get_events() -> list[Event]:
     """
     Get all available Events.
     """
@@ -60,8 +61,8 @@ async def get_event(event_id: str):
     """
     try:
         return events[event_id]
-    except KeyError:
-        raise HTTPException(status_code=404, detail="Event not found")
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Event not found") from exc
 
 
 @app.put("/event")
@@ -80,11 +81,13 @@ async def upsert_event(event: Event) -> Event:
             # serialize Decimal as str
             json_serialize=lambda j: json.dumps(j, default=str)
         ) as session:
-            async with session.post(
+            await session.post(
                 url=BET_MAKER_CALLBACK_URL, json=events[event.id].dict(), timeout=5
-            ) as resp:
-                logging.info(f"callback for {event.id} sent to bet-maker")
-    except Exception as e:
-        logging.warn(f"unable to send callback for {event.id} to bet-maker: {e}")
+            )
+            logging.info("callback for %s sent to bet-maker", event.id)
+    except aiohttp.ClientError as exc:
+        logging.warning(
+            "unable to send callback for %s to bet-maker: %s", event.id, exc
+        )
 
     return events[event.id]
