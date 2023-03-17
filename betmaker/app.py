@@ -36,7 +36,9 @@ async def get_events(
     return (await db_session.execute(statement)).scalars().all()
 
 
-@app.post("/bet", responses={201: {"model": dto.Bet}, 403: {}, 404: {}})
+@app.post(
+    "/bet", responses={201: {"model": dto.Bet}, 403: {}, 404: {}}, status_code=201
+)
 async def create_bet(
     bet_create: dto.BetCreate,
     db_session: AsyncSession = Depends(get_session),
@@ -57,7 +59,7 @@ async def create_bet(
     new_bet = models.Bet(**bet_create.dict(exclude_unset=True))
     db_session.add(new_bet)
     await db_session.commit()
-    return Response(new_bet, status_code=status.HTTP_201_CREATED)
+    return new_bet
 
 
 @app.get("/bet/{bet_id}", responses={200: {"model": dto.Bet}, 404: {}})
