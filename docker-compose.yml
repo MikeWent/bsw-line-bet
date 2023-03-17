@@ -6,8 +6,6 @@ services:
       - 8080:8080
     environment:
       - BET_MAKER_CALLBACK_URL=http://betmaker:9090/callback
-    volumes:
-      - ./common:/opt/common
     depends_on:
       - betmaker
 
@@ -22,8 +20,6 @@ services:
     environment:
       - LINE_PROVIDER_URL=http://lineprovider:8080
       - DATABASE_URL=postgresql+asyncpg://xxx:yyy@betmaker-db:5432/betmaker
-    volumes:
-      - ./common:/opt/common
 
   betmaker-db:
     image: postgres:15
