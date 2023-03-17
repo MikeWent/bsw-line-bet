@@ -3,7 +3,7 @@ from os import getenv
 
 from asyncache import cached
 from cachetools import TTLCache
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 
@@ -46,9 +46,13 @@ async def create_bet(
     """
     event: models.Event = await db_session.get(models.Event, bet_create.event_id)
     if not event:
-        raise HTTPException(status_code=404, detail="Event not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Event not found"
+        )
     if event.status != models.Event.EventStatus.NEW or datetime.now() > event.deadline:
-        raise HTTPException(status_code=403, detail="Event is past deadline")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Event is past deadline"
+        )
 
     new_bet = models.Bet(**bet_create.dict(exclude_unset=True))
     db_session.add(new_bet)
@@ -66,7 +70,9 @@ async def get_bet(
     """
     bet = await db_session.get(models.Bet, bet_id)
     if not bet:
-        raise HTTPException(status_code=404, detail="Bet not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Bet not found"
+        )
     return bet
 
 

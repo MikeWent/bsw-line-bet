@@ -27,7 +27,6 @@ async def startup():
             status=EventStatus.NEW,
         )
     )
-
     await upsert_event(
         Event(
             id=2,
