@@ -5,10 +5,10 @@ docker build ./common -t common
 docker compose up --build
 ```
 
-## line-provider
+## lineprovider
 
 http://localhost:8080/docs
 
-## bet-maker
+## betmaker
 
 http://localhost:9090/docs

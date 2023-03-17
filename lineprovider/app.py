@@ -11,7 +11,7 @@ from common.dto import Event, EventStatus
 BET_MAKER_CALLBACK_URL = getenv(
     "BET_MAKER_CALLBACK_URL", "http://localhost:9090/callback"
 )
-app = FastAPI(title="line-provider")
+app = FastAPI(title="lineprovider")
 
 
 events: dict[int, Event] = {}
@@ -83,10 +83,8 @@ async def upsert_event(event: Event) -> Event:
             await session.post(
                 url=BET_MAKER_CALLBACK_URL, json=events[event.id].dict(), timeout=5
             )
-            logging.info("callback for %s sent to bet-maker", event.id)
+            logging.info("callback for %s sent to betmaker", event.id)
     except aiohttp.ClientError as exc:
-        logging.warning(
-            "unable to send callback for %s to bet-maker: %s", event.id, exc
-        )
+        logging.warning("unable to send callback for %s to betmaker: %s", event.id, exc)
 
     return events[event.id]

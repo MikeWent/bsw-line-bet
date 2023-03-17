@@ -1,35 +1,35 @@
 services:
-  line-provider:
-    build: ./line-provider
-    container_name: line-provider
+  lineprovider:
+    build: ./lineprovider
+    container_name: lineprovider
     ports:
       - 8080:8080
     environment:
-      - BET_MAKER_CALLBACK_URL=http://bet-maker:9090/callback
+      - BET_MAKER_CALLBACK_URL=http://betmaker:9090/callback
     volumes:
       - ./common:/opt/common
     depends_on:
-      - bet-maker
+      - betmaker
 
-  bet-maker:
-    build: ./bet-maker
-    container_name: bet-maker
+  betmaker:
+    build: ./betmaker
+    container_name: betmaker
     ports:
       - 9090:9090
     depends_on:
-      bet-maker-db:
+      betmaker-db:
         condition: service_healthy
     environment:
-      - LINE_PROVIDER_URL=http://line-provider:8080
-      - DATABASE_URL=postgresql+asyncpg://xxx:yyy@bet-maker-db:5432/bet-maker
+      - LINE_PROVIDER_URL=http://lineprovider:8080
+      - DATABASE_URL=postgresql+asyncpg://xxx:yyy@betmaker-db:5432/betmaker
     volumes:
       - ./common:/opt/common
 
-  bet-maker-db:
+  betmaker-db:
     image: postgres:15
-    container_name: bet-maker-db
+    container_name: betmaker-db
     environment:
-      - POSTGRES_DB=bet-maker
+      - POSTGRES_DB=betmaker
       - POSTGRES_USER=xxx
       - POSTGRES_PASSWORD=yyy
     healthcheck:

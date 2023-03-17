@@ -12,7 +12,7 @@ from common import dto
 from db import AsyncSession, get_session, init_db
 
 LINE_PROVIDER_URL = getenv("LINE_PROVIDER_URL")
-app = FastAPI(title="bet-maker")
+app = FastAPI(title="betmaker")
 
 
 @app.on_event("startup")
