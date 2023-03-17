@@ -3,7 +3,7 @@ from os import getenv
 
 from asyncache import cached
 from cachetools import TTLCache
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, HTTPException, status, Response
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 
@@ -36,7 +36,7 @@ async def get_events(
     return (await db_session.execute(statement)).scalars().all()
 
 
-@app.post("/bet", responses={202: {"model": dto.Bet}, 403: {}, 404: {}})
+@app.post("/bet", responses={201: {"model": dto.Bet}, 403: {}, 404: {}})
 async def create_bet(
     bet_create: dto.BetCreate,
     db_session: AsyncSession = Depends(get_session),
@@ -57,7 +57,7 @@ async def create_bet(
     new_bet = models.Bet(**bet_create.dict(exclude_unset=True))
     db_session.add(new_bet)
     await db_session.commit()
-    return new_bet
+    return Response(new_bet, status_code=status.HTTP_201_CREATED)
 
 
 @app.get("/bet/{bet_id}", responses={200: {"model": dto.Bet}, 404: {}})
